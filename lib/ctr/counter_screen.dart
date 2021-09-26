@@ -11,17 +11,11 @@ class CounterScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.plus_one),
-                label: Text('plus')),
+            ElevatedButton(onPressed: () {}, child: Text('plus')),
             SizedBox(width: 30),
             Text('1', style: TextStyle(fontSize: 49)),
             SizedBox(width: 30),
-            TextButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.exposure_minus_1),
-                label: Text('minus'))
+            ElevatedButton(onPressed: () {}, child: Text('minus')),
           ],
         ),
       ),
