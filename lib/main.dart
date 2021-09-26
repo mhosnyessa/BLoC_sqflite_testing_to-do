@@ -1,8 +1,8 @@
 import 'package:block_trial/counter/count_bloc.dart';
 import 'package:flutter/material.dart';
+import 'layout/home_layout.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'layout/home_layout.dart';
 import './ctr/counter_screen.dart';
 
 void main() {
