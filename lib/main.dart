@@ -2,11 +2,19 @@ import 'package:block_trial/counter/count_bloc.dart';
 import 'package:flutter/material.dart';
 import 'layout/home_layout.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'shared/bloc_observer.dart';
 
 import './ctr/counter_screen.dart';
 
 void main() {
+  Bloc.observer = MyBlocObserver();
+
   runApp(MyApp());
+}
+
+class Test extends Container {
+  int hi = 0;
+  bool bk = true;
 }
 
 class MyApp extends StatelessWidget {
@@ -15,8 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // home: HomeLayout(),
-      home: CounterScreen(),
+      home: HomeLayout(),
     );
   }
 }

@@ -30,7 +30,7 @@ class CounterScreen extends StatelessWidget {
                   SizedBox(width: 30),
                   Text('${CounterCubit.get(context).counter}',
                       style: TextStyle(
-                        fontSize: 59,
+                        fontSize: 70,
                         fontWeight: FontWeight.w900,
                       )),
                   SizedBox(width: 30),

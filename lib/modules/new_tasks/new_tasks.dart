@@ -1,4 +1,5 @@
 import 'package:block_trial/shared/components/constants.dart';
+import 'package:block_trial/shared/cubit/cubit.dart';
 import 'package:flutter/material.dart';
 import '../../shared/components/components.dart';
 
@@ -7,6 +8,7 @@ class NewTasksPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List tasks = AppCubit.get(context).tasks;
     return ListView.separated(
         itemBuilder: (context, i) {
           return TaskItem(
