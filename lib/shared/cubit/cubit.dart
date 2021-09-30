@@ -26,6 +26,17 @@ class AppCubit extends Cubit<AppStates> {
     emit(ChangeNavState());
   }
 
+  void updateDB({
+    required String status,
+    required int id,
+  }) async {
+    return await db.rawUpdate('UPDATE tasks SET status = ? WHERE id = ?',
+        ['$status', id]).then((value) async {
+      tasks = await getDataFromDB(db);
+      emit(AppUpdateDBState());
+    });
+  }
+
   void createDatabase() async {
     openDatabase(
       'todo.db',
@@ -50,7 +61,7 @@ class AppCubit extends Cubit<AppStates> {
         print('opened database! ${db.toString()}');
         getDataFromDB(db).then((v) {
           tasks = v;
-          print(tasks[0]);
+          print(tasks);
           emit(AppGetDBState());
         });
       },
@@ -60,17 +71,23 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-  Future insertToDatabase({
+  insertToDatabase({
     required String title,
     required String time,
     required String date,
   }) async {
-    return await db.transaction((txn) async {
+    db.transaction((txn) async {
       txn
           .rawInsert(
               'INSERT INTO tasks(title, date, time, status) VALUES("$title", "$date", "$time", "new")')
           .then((value) {
         print('inserted successfully id = ${value.toString()}');
+        emit(AppInsertDBState());
+        getDataFromDB(db).then((v) {
+          tasks = v;
+          print(tasks[0]);
+          emit(AppGetDBState());
+        });
       }).catchError((error) {
         print('error when inserting new record ${error.toString()}');
       });
@@ -78,8 +95,22 @@ class AppCubit extends Cubit<AppStates> {
   }
 
   Future<List<Map>> getDataFromDB(Database db) async {
+    emit(CircularIndicatorState());
+
     return await db.rawQuery('SELECT * FROM tasks');
   }
+
+  void toggleButtomSheet({
+    required bool isShown,
+    required IconData icon,
+  }) {
+    isBottomSheetDisplayed = isShown;
+    fabIcon = icon;
+    emit(ChangeBottomState());
+  }
+
+  IconData fabIcon = Icons.edit;
+  bool isBottomSheetDisplayed = false;
 }
 
 //  -> >- |} || \/ /\ -<>- :: *** *** www  <= >= != <$ ++ --> := =>> ==> +++ === 

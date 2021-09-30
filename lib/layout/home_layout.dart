@@ -14,36 +14,29 @@ import 'dart:io';
 class HomeLayout extends StatelessWidget {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   var formKey = GlobalKey<FormState>();
-  IconData fabIcon = Icons.edit;
-  bool isBottomSheetDisplayed = false;
   late Database db;
 
   var titleController = TextEditingController();
   var timeController = TextEditingController();
   var dateController = TextEditingController();
-  late Icon titleIcon;
-
-  @override
-  // void initState() {
-  //   super.initState();
-  //   createDatabase();
-  // }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => AppCubit()..createDatabase(),
       child: BlocConsumer<AppCubit, AppStates>(
-        listener: (BuildContext context, Object? state) {},
+        listener: (BuildContext context, Object? state) {
+          if (state is AppInsertDBState) Navigator.of(context).pop();
+        },
         builder: (BuildContext context, state) {
           AppCubit cubit = AppCubit.get(context);
           return Scaffold(
             key: scaffoldKey,
             floatingActionButton: FloatingActionButton(
-              child: Icon(fabIcon),
+              child: Icon(cubit.fabIcon),
               onPressed: () {
-                if (!isBottomSheetDisplayed) {
-                  isBottomSheetDisplayed = !isBottomSheetDisplayed;
+                if (!cubit.isBottomSheetDisplayed) {
+                  cubit.isBottomSheetDisplayed = !cubit.isBottomSheetDisplayed;
                   scaffoldKey.currentState!
                       .showBottomSheet(
                         (context) => Container(
@@ -78,7 +71,6 @@ class HomeLayout extends StatelessWidget {
                                         context: context,
                                         initialTime: TimeOfDay.now(),
                                       ).then((value) {
-                                        //setState(() {});
                                         timeController.text =
                                             value!.format(context).toString();
                                       });
@@ -123,24 +115,29 @@ class HomeLayout extends StatelessWidget {
                       )
                       .closed
                       .then((value) {
-                    isBottomSheetDisplayed = !isBottomSheetDisplayed;
-                    // setState(() {
-                    //   fabIcon = Icons.edit;
-                    // });
+                    cubit.isBottomSheetDisplayed =
+                        !cubit.isBottomSheetDisplayed;
+                    cubit.toggleButtomSheet(
+                      isShown: false,
+                      icon: Icons.edit,
+                    );
                   });
 
-                  // setState(() {
-                  //   fabIcon = Icons.add;
-                  // });
-                } else if (isBottomSheetDisplayed) {
+                  cubit.toggleButtomSheet(
+                    isShown: true,
+                    icon: Icons.add,
+                  );
+                } else if (cubit.isBottomSheetDisplayed) {
                   if (formKey.currentState!.validate()) {
-                    // insertToDatabase(
-                    //   title: titleController.text,
-                    //   time: timeController.text,
-                    //   date: dateController.text,
-                    // ).then((_) {
+                    cubit.insertToDatabase(
+                      title: titleController.text,
+                      time: timeController.text,
+                      date: dateController.text,
+                    );
+                    cubit.toggleButtomSheet(isShown: false, icon: Icons.edit);
+                    //
+                    //.then((_) {
                     //   isBottomSheetDisplayed = !isBottomSheetDisplayed;
-                    //   Navigator.of(context).pop();
                     //   // setState(() {
                     //   //   fabIcon = Icons.edit;
                     //   // });
@@ -156,7 +153,7 @@ class HomeLayout extends StatelessWidget {
             ),
             body: BuildCondition(
                 builder: (context) => cubit.pages[cubit.currentIndex],
-                condition: true,
+                condition: state is! CircularIndicatorState,
                 fallback: (context) => Center(
                       child: CircularProgressIndicator(),
                     )),
@@ -174,18 +171,15 @@ class HomeLayout extends StatelessWidget {
               items: [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.menu),
-                  label: AppCubit.get(context)
-                      .titles[AppCubit.get(context).currentIndex],
+                  label: AppCubit.get(context).titles[0],
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.check_circle_outline),
-                  label: AppCubit.get(context)
-                      .titles[AppCubit.get(context).currentIndex],
+                  label: AppCubit.get(context).titles[1],
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.archive_outlined),
-                  label: AppCubit.get(context)
-                      .titles[AppCubit.get(context).currentIndex],
+                  label: AppCubit.get(context).titles[2],
                 ),
               ],
             ),
@@ -194,60 +188,6 @@ class HomeLayout extends StatelessWidget {
       ),
     );
   }
-
-//   void createDatabase() async {
-//     db = await openDatabase(
-//       'todo.db',
-//       version: 1,
-//       onCreate: (db, version) {
-//         print('database has been created !');
-//         db
-
-//             ///id integer
-//             ///title string
-//             ///date string
-//             ///time string
-//             ///status string
-//             .execute(
-//                 'CREATE TABLE tasks (id INTEGER PRIMARY KEY, title TEXT, date TEXT, time TEXT, status TEXT)')
-//             .then((value) => {print('table created')})
-//             .catchError((error) {
-//           print('error while creating table${error.toString()}');
-//         });
-//       },
-//       onOpen: (db) {
-//         print('opened database! ${db.toString()}');
-//         getDataFromDB(db).then((v) {
-//           // setState(() {
-//           //   tasks = v;
-//           // });
-//           print(tasks[0]);
-//         });
-//       },
-//     );
-//   }
-
-//   Future insertToDatabase({
-//     required String title,
-//     required String time,
-//     required String date,
-//   }) async {
-//     return await db.transaction((txn) async {
-//       txn
-//           .rawInsert(
-//               'INSERT INTO tasks(title, date, time, status) VALUES("$title", "$date", "$time", "new")')
-//           .then((value) {
-//         print('inserted successfully id = ${value.toString()}');
-//       }).catchError((error) {
-//         print('error when inserting new record ${error.toString()}');
-//       });
-//     });
-//   }
-
-//   Future<List<Map>> getDataFromDB(Database db) async {
-//     return await db.rawQuery('SELECT * FROM tasks');
-//   }
-// }
 
   Widget defaultFormField({
     TextEditingController? controller,
